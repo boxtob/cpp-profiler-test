@@ -1,10 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
-# ---- Debug: local mode ----------------------------------------------------
+# ---- Debug: local mode -----------------------------------------------------------------------------------------------
 [[ -z "${GITHUB_ACTIONS:-}" ]] && echo "Running in local mode"
 
-# ---- Print INPUT_* (only in CI) -------------------------------------------
+# ---- Print INPUT_* (only in CI) -----------------------------------------
 [[ -n "${GITHUB_ACTIONS:-}" ]] && {
   echo "::group::INPUT variables"
   env | grep '^INPUT_' | sort | while IFS='=' read -r k v; do
@@ -14,57 +14,52 @@ set -euo pipefail
   echo "::endgroup::"
 }
 
-# ---- Compile with forced profiler link ------------------------------------
-if [[ -f "test.cpp" ]]; then
-  echo "Compiling with -lprofiler (forced)..."
-  g++ -g -O0 -Wl,--no-as-needed -lprofiler test.cpp -o test || { echo "::error::Compile failed"; exit 1; }
-  ldd test
-fi
-
-# ---- Binaries -------------------------------------------------------------
-BINARIES=("${@:-test}")
-[[ ${#BINARIES[@]} -eq 0 ]] && { echo "::error::No binary specified"; exit 1; }
+# ---- Binaries -----------------------------------------------------------
+BINARIES=("${@:-}")
+[[ ${#BINARIES[@]} -eq 0 ]] && {
+  echo "::error::No binaries specified. Use 'binaries: your_binary' in workflow."
+  exit 1
+}
 
 for bin in "${BINARIES[@]}"; do
-  [[ ! -x "$bin" ]] && { echo "::error::Binary $bin missing or not executable"; continue; }
+  [[ ! -x "$bin" ]] && {
+    echo "::error::Binary '$bin' not found or not executable. Provide pre-built binary."
+    exit 1
+  }
 
   echo "=== Profiling $bin ==="
 
   # Valgrind memcheck
   if [[ "${INPUT_VALGRIND_MEMCHECK:-true}" == "true" ]]; then
-    # Valgrind memcheck
     valgrind --tool=memcheck \
-    --leak-check=full \
-    --show-leak-kinds=all \
-    --track-origins=yes \
-    --read-var-info=yes \
-    --keep-debuginfo=yes \
-    "./$bin" \
-    > "${bin}_valgrind_memcheck.out" 2>&1 || true
+      --leak-check=full \
+      --show-leak-kinds=all \
+      --track-origins=yes \
+      --read-var-info=yes \
+      --keep-debuginfo=yes \
+      "./$bin" \
+      > "${bin}_valgrind_memcheck.out" 2>&1 || true
   fi
 
   # Valgrind callgrind
   if [[ "${INPUT_VALGRIND_CALLGRIND:-false}" == "true" ]]; then
     valgrind --tool=callgrind "./$bin" \
-             > "${bin}_valgrind_callgrind.out" 2>&1 || true
+      > "${bin}_valgrind_callgrind.out" 2>&1 || true
   fi
 
-# gperftools
-if [[ "${INPUT_GPERFTOOLS:-false}" == "true" ]]; then
-  echo "Running gperftools (100 Hz sampling)..."
-  export CPUPROFILE_FREQUENCY=100
-  export CPUPROFILE="${bin}_profile.out"
-  "./$bin" || true
-
-  if [[ -f "${bin}_profile.out" ]]; then
-    pprof --text "/workspace/$bin" "${bin}_profile.out" > "${bin}_pprof.out" 2>&1 || true
-    pprof --png  "/workspace/$bin" "${bin}_profile.out" > "${bin}_flamegraph.png" 2>&1 || true
-  else
-    echo "::warning::No profile data (check -lprofiler and runtime)"
+  # gperftools
+  if [[ "${INPUT_GPERFTOOLS:-false}" == "true" ]]; then
+    echo "Running gperftools (100 Hz sampling)..."
+    export CPUPROFILE_FREQUENCY=100
+    export CPUPROFILE="${bin}_profile.out"
+    "./$bin" || true
+    if [[ -f "${bin}_profile.out" ]]; then
+      pprof --text "/workspace/$bin" "${bin}_profile.out" > "${bin}_pprof.out" 2>&1 || true
+      pprof --png  "/workspace/$bin" "${bin}_profile.out" > "${bin}_flamegraph.png" 2>&1 || true
+    fi
   fi
-fi
 
-  # Parse with absolute path
+  # Parse
   /app/venv/bin/python /app/parse_profile.py \
     "${bin}_valgrind_memcheck.out" \
     "${bin}_valgrind_callgrind.out" \
@@ -72,10 +67,20 @@ fi
     "$bin"
 done
 
-# ---- Artifacts ------------------------------------------------------------
+# ---- Fail on leak -------------------------------------------------------
+if [[ "${INPUT_FAIL_ON_LEAK:-false}" == "true" ]]; then
+  if grep -q "::error::" *.out 2>/dev/null; then
+    echo "::error::Memory leak detected — failing job"
+    exit 1
+  fi
+fi
+
+# ---- Artifacts ----------------------------------------------------------
 ARTIFACT_DIR="/tmp/artifacts"
 mkdir -p "$ARTIFACT_DIR"
 cp -f *.out "$ARTIFACT_DIR"/ 2>/dev/null || true
+cp -f *.png "$ARTIFACT_DIR"/ 2>/dev/null || true
+
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
   echo "artifacts=$ARTIFACT_DIR" >> "$GITHUB_OUTPUT"
 else

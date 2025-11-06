@@ -19,7 +19,7 @@ def parse_valgrind_memcheck(file_path):
     leaks = re.findall(leak_pattern, output, re.MULTILINE)
     for leak_type, bytes_lost, blocks in leaks:
         bytes_lost = bytes_lost.replace(",", "")
-        print(f"::warning::Valgrind {leak_type}: {bytes_lost} bytes in {blocks} blocks")  # ← fixed
+        print(f"::warning::Valgrind {leak_type}: {bytes_lost} bytes in {blocks} blocks")
 
     stack_pattern = r"==\d+==\s+at 0x[0-9A-F]+:\s+.*?\((.*?):(\d+)\)"
     traces = re.findall(stack_pattern, output, re.MULTILINE)

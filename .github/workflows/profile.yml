@@ -25,7 +25,7 @@ jobs:
           valgrind-memcheck: true
           valgrind-callgrind: true
           gperftools: true
-          fail-on-leak: false  # Set to true to fail on leaks
+          fail-on-leak: true  # Set to true to fail on leaks
 
       - name: Upload Artifacts
         if: always()
