@@ -21,7 +21,7 @@ def parse_valgrind_memcheck(file_path):
         bytes_lost = bytes_lost.replace(",", "")
         print(f"::warning::Valgrind {leak_type}: {bytes_lost} bytes in {blocks} blocks")
 
-    stack_pattern = r"==\d+==\s+at 0x[0-9A-F]+:\s+.*?\((.*?):(\d+)\)"
+    stack_pattern = r"==\d+==\s+by 0x[0-9A-F]+: .*?\((.*?):(\d+)\)"
     traces = re.findall(stack_pattern, output, re.MULTILINE)
     for file_name, line_number in traces:
         if file_name and file_name.startswith("/workspace/"):

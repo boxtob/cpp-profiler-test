@@ -5,20 +5,18 @@ echo "Container started"
 echo "Working directory: $(pwd)"
 echo "Input binaries: $@"
 echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
-echo "INPUT_VALGRIND_MEMCHECK: $INPUT_VALGRIND_MEMCHECK"
 
 # ---- Debug: local mode -----------------------------------------------------------------------------------------------
 [[ -z "${GITHUB_ACTIONS:-}" ]] && echo "Running in local mode"
 
 # ---- Print INPUT_* (only in CI) -----------------------------------------
-# [[ -n "${GITHUB_ACTIONS:-}" ]] && {
-echo "::group::INPUT variables changed"
-env | grep '^INPUT_' | sort | while IFS='=' read -r k v; do
-  c="${k#INPUT_}"; c="${c,,}"; c="${c//_/-}"
-  printf "  %s = %s\n" "$c" "$v"
-done
-echo "::endgroup::"
-# }
+[[ -n "${GITHUB_ACTIONS:-}" ]] && {
+  echo "::group::INPUT variables"
+  env | grep '^INPUT_' | sort | while IFS='=' read -r k v; do
+    printf "  %s = %s\n" "$k" "$v"
+  done
+  echo "::endgroup::"
+}
 
 # ---- Binaries -----------------------------------------------------------
 BINARIES=("${@:-}")
