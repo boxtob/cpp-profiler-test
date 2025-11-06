@@ -12,10 +12,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build with profiler
-        run: |
-          # No need to build here—Action does it internally
-          echo "Ready for profiling"
+      - name: Download test binary
+        uses: actions/download-artifact@v4
+        with:
+          name: test-binary
+          path: .
+
+      - name: Make executable
+        run: chmod +x test
 
       - name: Run C++ Profiler
         id: profiler
