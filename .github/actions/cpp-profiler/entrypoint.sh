@@ -11,12 +11,12 @@ echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
 
 # ---- Print INPUT_* (only in CI) -----------------------------------------
 # [[ -n "${GITHUB_ACTIONS:-}" ]] && {
-  echo "::group::INPUT variables"
-  env | grep '^INPUT_' | sort | while IFS='=' read -r k v; do
-    c="${k#INPUT_}"; c="${c,,}"; c="${c//_/-}"
-    printf "  %s = %s\n" "$c" "$v"
-  done
-  echo "::endgroup::"
+echo "::group::INPUT variables"
+env | grep '^INPUT_' | sort | while IFS='=' read -r k v; do
+  c="${k#INPUT_}"; c="${c,,}"; c="${c//_/-}"
+  printf "  %s = %s\n" "$c" "$v"
+done
+echo "::endgroup::"
 # }
 
 # ---- Binaries -----------------------------------------------------------
