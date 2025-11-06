@@ -24,6 +24,7 @@ def parse_valgrind_memcheck(file_path):
     stack_pattern = r"==\d+==\s{4}by 0x[0-9A-F]+: .*?\((.*?):(\d+)\)"
     traces = re.findall(stack_pattern, output, re.MULTILINE)
     for file_name, line_number in traces:
+        print(f"::warning::File name {file_name}, line number: {line_number}")
         if file_name and file_name.startswith("/workspace/"):
             file_name = file_name.replace("/workspace/", "")
             print(f"::error file={file_name},line={line_number}::Memory leak at {file_name}:{line_number}")
