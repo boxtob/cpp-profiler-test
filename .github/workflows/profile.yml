@@ -4,10 +4,10 @@ on:
     branches: [ main ]
 
 jobs:
-trigger:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Workflow triggered"
+  trigger:
+      runs-on: ubuntu-latest
+      steps:
+        - run: echo "Workflow triggered"
 
   profile:
     needs: [build-test, trigger]
