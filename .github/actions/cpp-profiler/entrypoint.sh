@@ -43,12 +43,18 @@ for bin in "${BINARIES[@]}"; do
       --keep-debuginfo=yes \
       "./$bin" \
       > "${bin}_valgrind_memcheck.out" 2>&1 || true
+
+      echo "Valgrind DONE"
+      cat ${bin}_valgrind_memcheck.out
   fi
 
   # Valgrind callgrind
   if [[ "${INPUT_VALGRIND_CALLGRIND:-false}" == "true" ]]; then
     valgrind --tool=callgrind "./$bin" \
       > "${bin}_valgrind_callgrind.out" 2>&1 || true
+
+      echo "Valgrind DONE"
+      cat ${bin}_valgrind_callgrind.out
   fi
 
   # gperftools
@@ -79,11 +85,15 @@ if [[ "${INPUT_FAIL_ON_LEAK:-false}" == "true" ]]; then
   fi
 fi
 
+echo "ARTIFACTS"
+
 # ---- Artifacts ----------------------------------------------------------
 ARTIFACT_DIR="/tmp/artifacts"
 mkdir -p "$ARTIFACT_DIR"
 cp -f *.out "$ARTIFACT_DIR"/ 2>/dev/null || true
 cp -f *.png "$ARTIFACT_DIR"/ 2>/dev/null || true
+
+ls -la $ARTIFACT_DIR
 
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
   echo "artifacts=$ARTIFACT_DIR" >> "$GITHUB_OUTPUT"
