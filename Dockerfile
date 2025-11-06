@@ -44,7 +44,7 @@ WORKDIR /app
 
 # ---- Copy Action files -----------------------------------------------------
 WORKDIR /app
-COPY action.yml entrypoint.sh parse_profile.py ./
+# COPY action.yml entrypoint.sh parse_profile.py ./
 # RUN chmod +x entrypoint.sh
 
 # ---- Working directory for user code ---------------------------------------
