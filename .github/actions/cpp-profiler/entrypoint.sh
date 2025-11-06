@@ -91,16 +91,16 @@ fi
 echo "ARTIFACTS"
 
 # ---- Artifacts ----------------------------------------------------------
-ARTIFACT_DIR="/tmp/artifacts"
+ARTIFACT_DIR="$GITHUB_WORKSPACE/artifacts"
 mkdir -p "$ARTIFACT_DIR"
-cp -f *.out "$ARTIFACT_DIR"/ 2>/dev/null || true
-cp -f *.png "$ARTIFACT_DIR"/ 2>/dev/null || true
 
-ls -la $ARTIFACT_DIR
+# Copy from container's /tmp to host's $GITHUB_WORKSPACE
+cp -f /tmp/artifacts/* "$ARTIFACT_DIR"/ 2>/dev/null || true
 
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
   echo "artifacts=$ARTIFACT_DIR" >> "$GITHUB_OUTPUT"
 else
   echo "Artifacts in $ARTIFACT_DIR:"
   ls -la "$ARTIFACT_DIR"
+  fi-la "$ARTIFACT_DIR"
 fi
