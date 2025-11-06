@@ -3,7 +3,7 @@
 
 void hot() {
   volatile long sum = 0;
-  for (long i = 0; i < 500'000'000; ++i) sum += i;  // CPU hotspot
+  for (long i = 0; i < 300'000'000; ++i) sum += i;  // CPU hotspot
   usleep(100'000);  // Pause for sampling
 }
 
