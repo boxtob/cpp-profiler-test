@@ -32,3 +32,9 @@ outputs:
 runs:
   using: 'docker'
   image: 'Dockerfile'
+  env:
+    INPUT_BINARIES: ${{ inputs.binaries }}
+    INPUT_VALGRIND_MEMCHECK: ${{ inputs.valgrind-memcheck }}
+    INPUT_VALGRIND_CALLGRIND: ${{ inputs.valgrind-callgrind }}
+    INPUT_GPERFTOOLS: ${{ inputs.gperftools }}
+    INPUT_FAIL_ON_LEAK: ${{ inputs.fail-on-leak }}
