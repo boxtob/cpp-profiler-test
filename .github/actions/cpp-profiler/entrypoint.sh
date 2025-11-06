@@ -43,18 +43,12 @@ for bin in "${BINARIES[@]}"; do
       --keep-debuginfo=yes \
       "./$bin" \
       > "${bin}_valgrind_memcheck.out" 2>&1 || true
-
-      echo "Valgrind DONE"
-      cat ${bin}_valgrind_memcheck.out
   fi
 
   # Valgrind callgrind
   if [[ "${INPUT_VALGRIND_CALLGRIND:-false}" == "true" ]]; then
     valgrind --tool=callgrind "./$bin" \
       > "${bin}_valgrind_callgrind.out" 2>&1 || true
-
-      echo "Valgrind DONE"
-      cat ${bin}_valgrind_callgrind.out
   fi
 
   # gperftools
@@ -67,9 +61,6 @@ for bin in "${BINARIES[@]}"; do
       pprof --text "/workspace/$bin" "${bin}_profile.out" > "${bin}_pprof.out" 2>&1 || true
       pprof --png  "/workspace/$bin" "${bin}_profile.out" > "${bin}_flamegraph.png" 2>&1 || true
     fi
-
-    echo "gperftools DONE"
-    cat ${bin}_pprof.out
   fi
 
   # Parse
