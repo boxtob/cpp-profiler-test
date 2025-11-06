@@ -67,6 +67,9 @@ for bin in "${BINARIES[@]}"; do
       pprof --text "/workspace/$bin" "${bin}_profile.out" > "${bin}_pprof.out" 2>&1 || true
       pprof --png  "/workspace/$bin" "${bin}_profile.out" > "${bin}_flamegraph.png" 2>&1 || true
     fi
+
+    echo "gperftools DONE"
+    cat ${bin}_pprof.out
   fi
 
   # Parse
