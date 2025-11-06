@@ -39,8 +39,4 @@ runs:
     INPUT_VALGRIND_MEMCHECK: ${{ inputs.valgrind-memcheck }}
     INPUT_VALGRIND_CALLGRIND: ${{ inputs.valgrind-callgrind }}
     INPUT_GPERFTOOLS: ${{ inputs.gperftools }}
-    INPUT_FAIL_ON_LEAK: ${{ inputs.fail-on-leak }}
-
-  pre: |
-      echo "Starting Docker container with full logging..."
-      docker events --filter container=$$(basename $GITHUB_ACTION_PATH) &    
+    INPUT_FAIL_ON_LEAK: ${{ inputs.fail-on-leak }} 
