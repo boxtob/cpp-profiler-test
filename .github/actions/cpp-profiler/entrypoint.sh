@@ -5,6 +5,7 @@ echo "Container started"
 echo "Working directory: $(pwd)"
 echo "Input binaries: $@"
 echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+echo "INPUT_VALGRIND_MEMCHECK: $INPUT_VALGRIND_MEMCHECK"
 
 # ---- Debug: local mode -----------------------------------------------------------------------------------------------
 [[ -z "${GITHUB_ACTIONS:-}" ]] && echo "Running in local mode"
