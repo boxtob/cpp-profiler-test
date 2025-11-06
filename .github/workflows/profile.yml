@@ -5,6 +5,7 @@ on:
 
 jobs:
   profile:
+    needs: build-test
     runs-on: ubuntu-latest
     permissions:
       contents: read
