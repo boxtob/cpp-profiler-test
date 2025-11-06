@@ -4,8 +4,13 @@ on:
     branches: [ main ]
 
 jobs:
+trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Workflow triggered"
+
   profile:
-    needs: build-test
+    needs: [build-test, trigger]
     runs-on: ubuntu-latest
     permissions:
       contents: read
