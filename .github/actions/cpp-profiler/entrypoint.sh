@@ -79,14 +79,13 @@ if [[ "${INPUT_FAIL_ON_LEAK:-false}" == "true" ]]; then
   fi
 fi
 
-echo "ARTIFACTS"
-
 # ---- Artifacts ----------------------------------------------------------
 ARTIFACT_DIR="$GITHUB_WORKSPACE/artifacts"
 mkdir -p "$ARTIFACT_DIR"
 
 # Copy from container's /tmp to host's $GITHUB_WORKSPACE
-cp -f /tmp/artifacts/* "$ARTIFACT_DIR"/ 2>/dev/null || true
+cp -f *.out "$ARTIFACT_DIR"/ 2>/dev/null || true
+ls -la $ARTIFACT_DIR
 
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
   echo "artifacts=$ARTIFACT_DIR" >> "$GITHUB_OUTPUT"
