@@ -10,7 +10,7 @@ jobs:
         - run: echo "Workflow triggered"
 
   profile:
-    needs: [build-test, trigger]
+    needs: [build, trigger]
     runs-on: ubuntu-latest
     permissions:
       contents: read
