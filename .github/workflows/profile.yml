@@ -1,0 +1,35 @@
+name: C++ Performance Profiling
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  profile:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write  # For annotations
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build with profiler
+        run: |
+          # No need to build here—Action does it internally
+          echo "Ready for profiling"
+
+      - name: Run C++ Profiler
+        id: profiler
+        uses: ./.github/actions/cpp-profiler
+        with:
+          binaries: test
+          valgrind-memcheck: true
+          valgrind-callgrind: true
+          gperftools: true
+          fail-on-leak: false  # Set to true to fail on leaks
+
+      - name: Upload Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: profiling-results
+          path: ${{ steps.profiler.outputs.artifacts }}
