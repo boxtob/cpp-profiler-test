@@ -1,0 +1,66 @@
+# .github/workflows/cpp-profiler.yml
+name: C++ Profiler (Build + Profile)
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'test.cpp'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build test binary
+        run: |
+          docker build -t test-builder .
+          docker run --rm \
+            -v $(pwd):/workspace \
+            -w /workspace \
+            test-builder \
+            g++ -g -O0 -lprofiler -Wl,--no-as-needed test.cpp -o test
+
+      - name: Upload binary
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-binary
+          path: test
+
+  profile:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download test binary
+        uses: actions/download-artifact@v4
+        with:
+          name: test-binary
+          path: .
+
+      - name: Make executable
+        run: chmod +x test
+
+      - name: Run C++ Profiler
+        id: profiler
+        uses: ./.github/actions/cpp-profiler
+        with:
+          binaries: test
+          valgrind-memcheck: true
+          valgrind-callgrind: true
+          gperftools: true
+          fail-on-leak: true
+
+      - name: Upload Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: profiling-results
+          path: ${{ steps.profiler.outputs.artifacts }}
