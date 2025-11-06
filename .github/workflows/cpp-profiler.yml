@@ -21,7 +21,7 @@ jobs:
             -v $(pwd):/workspace \
             -w /workspace \
             test-builder \
-            g++ -g -O0 -lprofiler -Wl,--no-as-needed test.cpp -o test
+            g++ -g -O0 -Wl,--no-as-needed -lprofiler test.cpp -o test
 
       - name: Upload binary
         id: upload
