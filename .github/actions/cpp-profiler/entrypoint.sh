@@ -87,6 +87,7 @@ mkdir -p "$ARTIFACT_DIR"
 # Copy from container's /tmp to host's $GITHUB_WORKSPACE
 cp -f *.out "$ARTIFACT_DIR"/ 2>/dev/null || true
 chmod uo+rwx -R "$ARTIFACT_DIR"
+chown -R "${GITHUB_ACTOR}:${GITHUB_ACTOR}" "$ARTIFACT_DIR"
 ls -la $ARTIFACT_DIR
 
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
