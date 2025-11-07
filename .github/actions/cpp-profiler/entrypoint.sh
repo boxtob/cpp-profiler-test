@@ -92,6 +92,9 @@ if [[ -n "${GITHUB_WORKSPACE:-}" ]]; then
   chown -R $(id -u):$(id -g) "$ARTIFACT_DIR" 2>/dev/null || true
 fi
 
+echo "Artifacts ready at $ARTIFACT_DIR:"
+ls -la "$ARTIFACT_DIR"
+
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
   echo "artifacts=$ARTIFACT_DIR" >> "$GITHUB_OUTPUT"
 else
