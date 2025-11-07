@@ -58,15 +58,15 @@ jobs:
           gperftools: true
           fail-on-leak: true
 
+      - name: Fix artifact ownership
+        run: |
+          sudo chown -R $USER:$USER "${{ steps.profiler.outputs.artifacts }}"
+
       - name: Test artifacts output
         run: |
           ls -la .
           echo "Artifacts path: ${{ steps.profiler.outputs.artifacts }}"
           ls -la "${{ steps.profiler.outputs.artifacts }}"
-
-      - name: Fix artifact ownership
-        run: |
-          sudo chown -R $USER:$USER "${{ steps.profiler.outputs.artifacts }}"
 
       - name: Upload Artifacts
         if: always()
