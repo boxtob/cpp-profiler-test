@@ -58,6 +58,11 @@ jobs:
           gperftools: true
           fail-on-leak: true
 
+      - name: Test artifacts output
+        run: |
+          echo "Artifacts path: ${{ steps.profiler.outputs.artifacts }}"
+          ls -la "${{ steps.profiler.outputs.artifacts }}"
+
       - name: Upload Artifacts
         if: always()
         uses: actions/upload-artifact@v4
