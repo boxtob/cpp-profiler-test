@@ -80,17 +80,12 @@ if [[ "${INPUT_FAIL_ON_LEAK:-false}" == "true" ]]; then
 fi
 
 # ---- Artifacts ----------------------------------------------------------
-ARTIFACT_DIR="$GITHUB_WORKSPACE/artifacts"
-echo "ARTIFACT_DIR: $ARTIFACT_DIR"
+ARTIFACT_DIR="artifacts"
+echo "ARTIFACT_DIR: $(realpath $ARTIFACT_DIR")
 mkdir -p "$ARTIFACT_DIR"
 
 # Copy from container's /tmp to host's $GITHUB_WORKSPACE
 cp -f *.out "$ARTIFACT_DIR"/ 2>/dev/null || true
-
-# Fix ownership so runner user can read
-if [[ -n "${GITHUB_WORKSPACE:-}" ]]; then
-  chown -R $(id -u):$(id -g) "$ARTIFACT_DIR" 2>/dev/null || true
-fi
 
 echo "Artifacts ready at $ARTIFACT_DIR:"
 ls -la "$ARTIFACT_DIR"

@@ -65,7 +65,7 @@ jobs:
       - name: Test artifacts output
         run: |
           ls -la .
-          echo "Artifacts path: ${{ steps.profiler.outputs.artifacts }}"
+          echo "Artifacts path: $(realpath ${{ steps.profiler.outputs.artifacts }})"
           ls -la "${{ steps.profiler.outputs.artifacts }}"
 
       - name: Upload Artifacts
