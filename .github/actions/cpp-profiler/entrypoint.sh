@@ -80,7 +80,7 @@ if [[ "${INPUT_FAIL_ON_LEAK:-false}" == "true" ]]; then
 fi
 
 # ---- Artifacts ----------------------------------------------------------
-ARTIFACT_DIR="$GITHUB_WORKSPACE/artifacts"
+ARTIFACT_DIR="$GITHUB_WORKSPACE/artifacts/"
 echo "ARTIFACT_DIR: $ARTIFACT_DIR"
 mkdir -p "$ARTIFACT_DIR"
 
