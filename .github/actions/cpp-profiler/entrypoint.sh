@@ -81,7 +81,7 @@ fi
 
 # ---- Artifacts ----------------------------------------------------------
 ARTIFACT_DIR="artifacts"
-echo "ARTIFACT_DIR: $(realpath $ARTIFACT_DIR")
+echo "ARTIFACT_DIR: $(realpath $ARTIFACT_DIR)"
 mkdir -p "$ARTIFACT_DIR"
 
 # Copy from container's /tmp to host's $GITHUB_WORKSPACE
