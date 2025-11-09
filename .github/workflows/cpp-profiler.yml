@@ -16,12 +16,12 @@ jobs:
 
       - name: Build test binary
         run: |
-          # docker build -t test-builder .
-          # docker run --rm \
-          #   -v $(pwd):/workspace \
-          #   -w /workspace \
-          #   test-builder \
-          g++ -g -O0 -Wl,--no-as-needed -lprofiler test.cpp -o test
+          docker build -t test-builder .
+          docker run --rm \
+            -v $(pwd):/workspace \
+            -w /workspace \
+            test-builder \
+            g++ -g -O0 -Wl,--no-as-needed -lprofiler test.cpp -o test
 
       - name: Upload binary
         id: upload
