@@ -12,5 +12,21 @@ add_compile_options(-Wall -Wextra -g -O0)
 # Add executable
 add_executable(hotspot_leak src/main.cpp)
 
+# ---- Link with -lprofiler --------------------------------------------
+# Find the library (optional but recommended)
+find_library(PROFILER_LIB profiler
+    HINTS
+        /usr/lib
+        /usr/lib/x86_64-linux-gnu
+        /usr/local/lib
+    REQUIRED)
+
+if (NOT PROFILER_LIB)
+    message(FATAL_ERROR "libprofiler not found – install libgoogle-perftools-dev")
+endif()
+
+# Link it
+target_link_libraries(hotspot_leak PRIVATE ${PROFILER_LIB})
+
 # Link required libraries (pthread for usleep, though usually not needed on Linux)
 target_link_libraries(hotspot_leak PRIVATE pthread)

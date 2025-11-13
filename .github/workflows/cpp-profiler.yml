@@ -22,7 +22,6 @@ jobs:
             -v $(pwd):/workspace \
             -w /workspace \
             test-builder \
-            mkdir -p _build
             cmake -B _build -S . -DCMAKE_INSTALL_PREFIX=_install 
             cmake --build _build --target install
 
