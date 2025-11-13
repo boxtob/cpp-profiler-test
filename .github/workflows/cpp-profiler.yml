@@ -22,15 +22,17 @@ jobs:
             -v $(pwd):/workspace \
             -w /workspace \
             test-builder \
-            cmake -B _build -S . -DCMAKE_INSTALL_PREFIX=_install \
-            cmake --build _build --target install 
+            bash -c "
+              cmake -B _build -S . -DCMAKE_INSTALL_PREFIX=_install && \
+              cmake --build _build --target install
+            ""
 
       - name: Upload binary
         id: upload
         uses: actions/upload-artifact@v4
         with:
           name: test-binary
-          path: _install/hotspot_leak
+          path: _install/bin/hotspot_leak
 
   profile:
     needs: build

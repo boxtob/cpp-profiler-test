@@ -30,3 +30,5 @@ target_link_libraries(hotspot_leak PRIVATE ${PROFILER_LIB})
 
 # Link required libraries (pthread for usleep, though usually not needed on Linux)
 target_link_libraries(hotspot_leak PRIVATE pthread)
+
+install(TARGETS hotspot_leak RUNTIME DESTINATION bin)
