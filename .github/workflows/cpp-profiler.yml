@@ -22,8 +22,8 @@ jobs:
             -v $(pwd):/workspace \
             -w /workspace \
             test-builder \
-            cmake -B _build -S . -DCMAKE_INSTALL_PREFIX=_install 
-            cmake --build _build --target install
+            cmake -B _build -S . -DCMAKE_INSTALL_PREFIX=_install \
+            cmake --build _build --target install 
 
       - name: Upload binary
         id: upload
