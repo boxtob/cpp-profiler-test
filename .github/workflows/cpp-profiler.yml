@@ -50,13 +50,13 @@ jobs:
           path: .
 
       - name: Make executable
-        run: chmod +x test
+        run: chmod +x hotspot_leak
 
       - name: Run C++ Profiler
         id: profiler
         uses: boxtob/cpp-perf-action@main
         with:
-          binaries: test
+          binaries: hotspot_leak
           valgrind-memcheck: true
           valgrind-callgrind: true
           gperftools: true
