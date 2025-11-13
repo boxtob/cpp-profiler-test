@@ -16,19 +16,22 @@ jobs:
 
       - name: Build test binary
         run: |
-          docker build -t test-builder .
+          mkdir _install
+          docker build -t test-builder build
           docker run --rm \
             -v $(pwd):/workspace \
             -w /workspace \
             test-builder \
-            g++ -g -O0 -Wl,--no-as-needed -lprofiler test.cpp -o test
+            mkdir -p _build
+            cmake -B _build -S . -DCMAKE_INSTALL_PREFIX=_install 
+            cmake --build _build --target install
 
       - name: Upload binary
         id: upload
         uses: actions/upload-artifact@v4
         with:
           name: test-binary
-          path: test
+          path: _install/hotspot_leak
 
   profile:
     needs: build
