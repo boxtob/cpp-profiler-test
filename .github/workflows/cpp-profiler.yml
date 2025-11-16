@@ -1,0 +1,74 @@
+# .github/workflows/cpp-profiler.yml
+name: C++ Profiler (Build + Profile)
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'test.cpp'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build test binary
+        run: |
+          mkdir _install
+          docker build -t test-builder build
+          docker run --rm \
+            -v $(pwd):/workspace \
+            -w /workspace \
+            test-builder \
+            bash -c "
+              cmake -B _build -S . -DCMAKE_INSTALL_PREFIX=_install && \
+              cmake --build _build --target install
+            "
+
+      - name: Upload binary
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-binary
+          path: _install/bin/hotspot_leak
+
+  profile:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download test binary
+        uses: actions/download-artifact@v4
+        with:
+          name: test-binary
+          path: .
+
+      - name: Make executable
+        run: chmod +x hotspot_leak
+
+      - name: Run C++ Profiler
+        id: profiler
+        uses: boxtob/cpp-perf-action@main
+        with:
+          binaries: hotspot_leak
+          valgrind-memcheck: true
+          valgrind-callgrind: true
+          gperftools: true
+          fail-on-leak: true
+
+      - name: Fix artifact ownership
+        run: |
+          sudo chown -R $USER:$USER "${{ steps.profiler.outputs.artifacts }}"
+
+      - name: Upload Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: profiling-results
+          path: ${{ steps.profiler.outputs.artifacts }}

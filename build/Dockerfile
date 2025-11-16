@@ -20,7 +20,13 @@ RUN apt-get update && apt-get install -y \
     graphviz \
     libperl-dev \
     pkg-config \
-    && rm -rf /var/lib/apt/lists/*
+    cmake && \
+    # Clean up    
+    rm -rf /var/lib/apt/lists/*
+
+# (Optional) Verify CMake version
+RUN cmake --version
+
 # Manually install pprof from gperftools source (fallback if google-perftools fails)
 RUN git clone --branch gperftools-2.10 https://github.com/gperftools/gperftools.git && \
     cd gperftools && \
@@ -44,9 +50,9 @@ WORKDIR /app
 
 # ---- Copy Action files -----------------------------------------------------
 WORKDIR /app
-COPY action.yml entrypoint.sh parse_profile.py ./
-RUN chmod +x entrypoint.sh
+# COPY action.yml entrypoint.sh parse_profile.py ./
+# RUN chmod +x entrypoint.sh
 
 # ---- Working directory for user code ---------------------------------------
 WORKDIR /workspace
-ENTRYPOINT ["/app/entrypoint.sh"]
+# ENTRYPOINT ["/app/entrypoint.sh"]
