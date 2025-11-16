@@ -22,7 +22,8 @@ jobs:
             test-builder \
             bash -c "
               cmake -B _build -S . -DCMAKE_INSTALL_PREFIX=_install && \
-              cmake --build _build --target install
+              cmake --build _build --target install && \
+              ldd _install/bin/hotspot_leak
             "
 
       - name: Upload binary

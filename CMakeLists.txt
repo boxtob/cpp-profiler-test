@@ -25,6 +25,9 @@ if (NOT PROFILER_LIB)
     message(FATAL_ERROR "libprofiler not found – install libgoogle-perftools-dev")
 endif()
 
+# Force-link libfoo even if no symbols are used
+target_link_options(hotspot_leak PRIVATE "-Wl,--no-as-needed")
+
 # Link it
 target_link_libraries(hotspot_leak PRIVATE ${PROFILER_LIB})
 
