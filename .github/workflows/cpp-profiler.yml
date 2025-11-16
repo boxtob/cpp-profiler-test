@@ -62,7 +62,9 @@ jobs:
 
       - name: Fix artifact ownership
         run: |
+          ls -la .
           sudo chown -R $USER:$USER "${{ steps.profiler.outputs.artifacts }}"
+          ls -la "${{ steps.profiler.outputs.artifacts }}"
 
       - name: Upload Artifacts
         if: always()
