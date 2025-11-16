@@ -1,13 +1,8 @@
 # .github/workflows/cpp-profiler.yml
 name: C++ Profiler (Build + Profile)
 on:
-  pull_request_target:
-    types:
-      - opened
-      - synchronize
-      - closed
-    branches: 
-      - 'main'
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
