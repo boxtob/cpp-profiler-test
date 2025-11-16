@@ -11,6 +11,7 @@ add_compile_options(-Wall -Wextra -g -O0)
 
 # Add executable
 add_executable(hotspot_leak src/main.cpp)
+target_compile_features(hotspot_leak PRIVATE cxx_std_17)
 
 # ---- Link with -lprofiler --------------------------------------------
 # Find the library (optional but recommended)

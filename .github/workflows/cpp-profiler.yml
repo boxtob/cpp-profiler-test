@@ -60,6 +60,7 @@ jobs:
           valgrind-callgrind: true
           gperftools: true
           fail-on-leak: true
+          run-args: --verbose
 
       - name: Fix artifact ownership
         run: |
