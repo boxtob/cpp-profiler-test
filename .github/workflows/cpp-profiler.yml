@@ -2,9 +2,9 @@
 name: C++ Profiler (Build + Profile)
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ "main" ]
     paths:
-      - 'test.cpp'
+      - 'src/*'
 
 jobs:
   build:
