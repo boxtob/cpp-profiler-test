@@ -58,6 +58,7 @@ jobs:
           binaries: hotspot_leak
           valgrind-memcheck: true
           valgrind-callgrind: true
+          valgrind-cachegrind: true
           gperftools: true
           fail-on-leak: true
           run-args: --verbose
