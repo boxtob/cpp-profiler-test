@@ -55,7 +55,7 @@ jobs:
 
       - name: Run C++ Profiler
         id: profiler
-        uses: boxtob/cpp-perf-action@v1.1.2
+        uses: boxtob/cpp-perf-action@v1.1.3
         with:
           binaries: hotspot_leak
           valgrind-memcheck: true
