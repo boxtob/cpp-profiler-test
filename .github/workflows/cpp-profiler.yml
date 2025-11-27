@@ -30,7 +30,7 @@ jobs:
       - name: Build test binary
         run: |
           docker run --rm \
-            -v "$GITHUB_WORKSPACE":/workspace \
+            -v "$(pwd)":/workspace \
             -w /workspace \
             ghcr.io/boxtob/cpp-perf-action:1.2.0 \
             bash -c "
