@@ -9,7 +9,7 @@ jobs:
   test-platform:
     strategy:
       matrix:
-        runner: [ubuntu-latest, ubuntu-latest-arm64]
+        runner: [ubuntu-latest, ubuntu-24.04-arm64]
         include:
           - runner: ubuntu-latest
             arch: x86_64
