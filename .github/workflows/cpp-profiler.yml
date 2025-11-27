@@ -1,61 +1,57 @@
 # .github/workflows/cpp-profiler.yml
-name: C++ Profiler (Build + Profile)
+name: C++ Profiler – x86_64 + ARM64 (Docker build)
 on:
   pull_request:
     branches: [ "main" ]
     types: [ opened, synchronize, closed ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    outputs:
-      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+  test-platform:
+    strategy:
+      matrix:
+        runner: [ubuntu-latest, ubuntu-latest-arm64]
+        include:
+          - runner: ubuntu-latest
+            arch: x86_64
+          - runner: ubuntu-latest-arm64
+            arch: arm64
+
+    runs-on: ${{ matrix.runner }}
+    name: ${{ matrix.arch }} (Docker build)
+
+    permissions:
+      contents: read
+      packages: read
+      pull-requests: write
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Build test binary
         run: |
-          mkdir _install
-          docker build -t test-builder build
           docker run --rm \
-            -v $(pwd):/workspace \
+            -v "$GITHUB_WORKSPACE":/workspace \
             -w /workspace \
-            test-builder \
+            ghcr.io/boxtob/cpp-perf-action:1.2.0 \
             bash -c "
               cmake -B _build -S . -DCMAKE_INSTALL_PREFIX=_install && \
               cmake --build _build --target install && \
-              ldd _install/bin/hotspot_leak
-            "
+              file _install/bin/hotspot_leak && \
+              ldd _install/bin/hotspot_leak | head -5
+            "      
 
-      - name: Upload binary
-        id: upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-binary
-          path: _install/bin/hotspot_leak
-
-  profile:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      packages: read
-      contents: read
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download test binary
-        uses: actions/download-artifact@v4
-        with:
-          name: test-binary
-          path: .
+      - name: Copy binary from Docker volume to workspace
+        run: |
+          cp _install/bin/hotspot_leak .
+          chmod +x hotspot_leak
+          file hotspot_leak
 
       - name: Make executable
         run: chmod +x hotspot_leak
 
-      - name: Run C++ Profiler
+      - name: Run C++ Profiler (${{ matrix.arch }})
         id: profiler
-        uses: boxtob/cpp-perf-action@v1.1.5
+        uses: boxtob/cpp-perf-action@v1.2.0
         with:
           binaries: hotspot_leak
           valgrind-memcheck: true
@@ -64,12 +60,6 @@ jobs:
           gperftools: true
           fail-on-leak: true
           run-args: --verbose
-
-      - name: Fix artifact ownership
-        run: |
-          ls -la .
-          sudo chown -R $USER:$USER "${{ steps.profiler.outputs.artifacts }}"
-          ls -la "${{ steps.profiler.outputs.artifacts }}"
 
       - name: Upload Artifacts
         if: always()
