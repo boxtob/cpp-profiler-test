@@ -3,6 +3,7 @@ name: C++ Profiler (Build + Profile)
 on:
   pull_request:
     branches: [ "main" ]
+    types: [ opened, synchronize, closed ]
 
 jobs:
   build:
@@ -37,6 +38,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions:
+      packages: read
       contents: read
       pull-requests: write
     steps:
@@ -53,11 +55,12 @@ jobs:
 
       - name: Run C++ Profiler
         id: profiler
-        uses: boxtob/cpp-perf-action@main
+        uses: boxtob/cpp-perf-action@v1.1.5
         with:
           binaries: hotspot_leak
           valgrind-memcheck: true
           valgrind-callgrind: true
+          valgrind-cachegrind: true
           gperftools: true
           fail-on-leak: true
           run-args: --verbose
