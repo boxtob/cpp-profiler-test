@@ -32,7 +32,7 @@ jobs:
           docker run --rm \
             -v "$(pwd)":/workspace \
             -w /workspace \
-            ghcr.io/boxtob/cpp-perf-action:1.2.0 \
+            ghcr.io/boxtob/cpp-perf-action:1.2.1 \
             bash -c "
               cmake -B _build -S . -DCMAKE_INSTALL_PREFIX=_install && \
               cmake --build _build --target install && \
@@ -51,7 +51,7 @@ jobs:
 
       - name: Run C++ Profiler (${{ matrix.arch }})
         id: profiler
-        uses: boxtob/cpp-perf-action@v1.2.0
+        uses: boxtob/cpp-perf-action@v1.2.1
         with:
           binaries: hotspot_leak
           valgrind-memcheck: true
