@@ -106,5 +106,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: profiling-results
+          name: profiling-results-${{ matrix.arch }}
           path: ${{ steps.profiler.outputs.artifacts }}
