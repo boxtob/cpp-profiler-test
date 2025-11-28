@@ -9,7 +9,7 @@ jobs:
   build:
     strategy:
       matrix:
-        runner: [ubuntu-latest, ubuntu-24.04-arm64]
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
         include:
           - runner: ubuntu-latest
             arch: x86_64
@@ -57,7 +57,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        runner: [ubuntu-latest, ubuntu-24.04-arm64]
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
         include:
           - runner: ubuntu-latest
             arch: x86_64
