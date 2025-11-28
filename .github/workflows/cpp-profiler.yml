@@ -1,5 +1,5 @@
 # .github/workflows/cpp-profiler.yml
-name: C++ Profiler (Build + Profile)
+name: C++ Profiler – x86_64 + ARM64 (Docker build)
 on:
   pull_request:
     branches: [ "main" ]
@@ -7,7 +7,18 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+        include:
+          - runner: ubuntu-latest
+            arch: x86_64
+          - runner: ubuntu-24.04-arm
+            arch: arm64
+
+    runs-on: ${{ matrix.runner }}
+    name: ${{ matrix.arch }} (Docker build)
+
     outputs:
       artifact-id: ${{ steps.upload.outputs.artifact-id }}
     steps:
@@ -24,38 +35,58 @@ jobs:
             bash -c "
               cmake -B _build -S . -DCMAKE_INSTALL_PREFIX=_install && \
               cmake --build _build --target install && \
-              ldd _install/bin/hotspot_leak
+              file _install/bin/hotspot_leak && \
+              ldd _install/bin/hotspot_leak | head -5
             "
+
+      - name: Copy binary from Docker volume to workspace
+        run: |
+          cp _install/bin/hotspot_leak .
+          chmod +x hotspot_leak
+          file hotspot_leak
 
       - name: Upload binary
         id: upload
         uses: actions/upload-artifact@v4
         with:
-          name: test-binary
+          name: test-binary-${{ matrix.arch }}
           path: _install/bin/hotspot_leak
 
-  profile:
+
+  test-platform:
     needs: build
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+        include:
+          - runner: ubuntu-latest
+            arch: x86_64
+          - runner: ubuntu-24.04-arm
+            arch: arm64
+
+    runs-on: ${{ matrix.runner }}
+    name: ${{ matrix.arch }} (Docker profile)
+
     permissions:
-      packages: read
       contents: read
+      packages: read
       pull-requests: write
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Download test binary
         uses: actions/download-artifact@v4
         with:
-          name: test-binary
+          name: test-binary-${{ matrix.arch }}
           path: .
 
       - name: Make executable
-        run: chmod +x hotspot_leak
+        run: chmod +x hotspot_leak      
 
-      - name: Run C++ Profiler
+      - name: Run C++ Profiler (${{ matrix.arch }})
         id: profiler
-        uses: boxtob/cpp-perf-action@v1.1.5
+        uses: boxtob/cpp-perf-action@v1.2.3
         with:
           binaries: hotspot_leak
           valgrind-memcheck: true
@@ -69,11 +100,11 @@ jobs:
         run: |
           ls -la .
           sudo chown -R $USER:$USER "${{ steps.profiler.outputs.artifacts }}"
-          ls -la "${{ steps.profiler.outputs.artifacts }}"
+          ls -la "${{ steps.profiler.outputs.artifacts }}"          
 
       - name: Upload Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: profiling-results
+          name: profiling-results-${{ matrix.arch }}
           path: ${{ steps.profiler.outputs.artifacts }}
