@@ -6,7 +6,7 @@ on:
     types: [ opened, synchronize, closed ]
 
 jobs:
-  test-platform:
+  build:
     strategy:
       matrix:
         runner: [ubuntu-latest, ubuntu-24.04-arm64]
@@ -19,6 +19,54 @@ jobs:
     runs-on: ${{ matrix.runner }}
     name: ${{ matrix.arch }} (Docker build)
 
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build test binary
+        run: |
+          mkdir _install
+          docker build -t test-builder build
+          docker run --rm \
+            -v $(pwd):/workspace \
+            -w /workspace \
+            test-builder \
+            bash -c "
+              cmake -B _build -S . -DCMAKE_INSTALL_PREFIX=_install && \
+              cmake --build _build --target install && \
+              file _install/bin/hotspot_leak && \
+              ldd _install/bin/hotspot_leak | head -5
+            "
+
+      - name: Copy binary from Docker volume to workspace
+        run: |
+          cp _install/bin/hotspot_leak .
+          chmod +x hotspot_leak
+          file hotspot_leak
+
+      - name: Upload binary
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-binary-${{ matrix.arch }}
+          path: _install/bin/hotspot_leak
+
+
+  test-platform:
+    needs: build
+    strategy:
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm64]
+        include:
+          - runner: ubuntu-latest
+            arch: x86_64
+          - runner: ubuntu-latest-arm64
+            arch: arm64
+
+    runs-on: ${{ matrix.runner }}
+    name: ${{ matrix.arch }} (Docker profile)
+
     permissions:
       contents: read
       packages: read
@@ -27,24 +75,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build test binary
-        run: |
-          docker run --rm \
-            -v "$(pwd)":/workspace \
-            -w /workspace \
-            ghcr.io/boxtob/cpp-perf-action:1.2.2 \
-            bash -c "
-              cmake -B _build -S . -DCMAKE_INSTALL_PREFIX=_install && \
-              cmake --build _build --target install && \
-              file _install/bin/hotspot_leak && \
-              ldd _install/bin/hotspot_leak | head -5
-            "      
+      - name: Download test binary
+        uses: actions/download-artifact@v4
+        with:
+          name: test-binary-${{ matrix.arch }}
+          path: .
 
-      - name: Copy binary from Docker volume to workspace
-        run: |
-          cp _install/bin/hotspot_leak .
-          chmod +x hotspot_leak
-          file hotspot_leak
+      - name: Make executable
+        run: chmod +x hotspot_leak      
 
       - name: Run C++ Profiler (${{ matrix.arch }})
         id: profiler
