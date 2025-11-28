@@ -86,7 +86,7 @@ jobs:
 
       - name: Run C++ Profiler (${{ matrix.arch }})
         id: profiler
-        uses: boxtob/cpp-perf-action@v1.2.2
+        uses: boxtob/cpp-perf-action@v1.2.3
         with:
           binaries: hotspot_leak
           valgrind-memcheck: true
